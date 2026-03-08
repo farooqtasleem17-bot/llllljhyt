@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { extractDaily } from "./providers/dailymotion";
+import { extractVidoza } from "./providers/vidoza";
 import { extractCallistanise } from "./providers/callistanise";
 import { extractFlash } from "./providers/flashplayer";
 import { extractVk } from "./providers/vkspeed";
