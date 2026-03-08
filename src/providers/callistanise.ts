@@ -1,4 +1,6 @@
-export async function extractCallistanise(url: string) {
+import type { Source } from "../types/sources";
+
+export async function extractCallistanise(url: string): Promise<Source> {
 
   const headers = {
     "user-agent":
@@ -7,6 +9,11 @@ export async function extractCallistanise(url: string) {
   };
 
   const res = await fetch(url, { headers });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch page");
+  }
+
   const html = await res.text();
 
   const packedRegex =
@@ -15,7 +22,7 @@ export async function extractCallistanise(url: string) {
   const match = html.match(packedRegex);
 
   if (!match) {
-    throw new Error("Packed JS not found");
+    throw new Error("Packed JavaScript not found");
   }
 
   const packed = match[1];
@@ -28,26 +35,26 @@ export async function extractCallistanise(url: string) {
   const hls = extractHls(unpacked);
 
   if (!hls) {
-    throw new Error("HLS not found");
+    throw new Error("HLS URL not found");
   }
 
   return {
-    source: hls,
-    type: "hls"
+    sources: [
+      {
+        url: hls,
+        type: "hls"
+      }
+    ]
   };
 }
 
 function unpack(packed: string, base: number, count: number, words: string[]) {
 
-  const toBase = (num: number, base: number) => {
-    return num.toString(base);
-  };
-
   let unpacked = packed;
 
   for (let i = 0; i < count; i++) {
 
-    const key = toBase(i, base);
+    const key = i.toString(base);
 
     if (words[i]) {
 
@@ -55,27 +62,31 @@ function unpack(packed: string, base: number, count: number, words: string[]) {
       unpacked = unpacked.replace(regex, words[i]);
 
     }
-
   }
 
   return unpacked;
 }
 
-function extractHls(code: string) {
+function extractHls(code: string): string | null {
 
   const patterns = [
+
     /["']hls4["']\s*:\s*["'](https?:\/\/[^"']+)["']/,
+
     /["']hls3["']\s*:\s*["'](https?:\/\/[^"']+)["']/,
+
     /["']hls2["']\s*:\s*["'](https?:\/\/[^"']+)["']/,
+
     /["'](\/stream\/[^"']*master\.m3u8[^"']*)["']/
+
   ];
 
-  for (const p of patterns) {
+  for (const pattern of patterns) {
 
-    const m = code.match(p);
+    const match = code.match(pattern);
 
-    if (m) {
-      return m[1];
+    if (match) {
+      return match[1];
     }
 
   }
