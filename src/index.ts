@@ -42,6 +42,9 @@ app.get("/sources", async (c) => {
         case "fp":
           data = await extractFlash(id);
           break;
+          case "vz":
+  data = await extractVidoza(urlParam);
+  break;
         case "vk":
           const iframe = `https://vkspeed.com/embed-${id}.html`;
           data = await extractVk(iframe);
