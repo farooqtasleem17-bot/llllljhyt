@@ -32,6 +32,9 @@ app.get("/sources", async (c) => {
     try {
       let data: Source;
       switch (host) {
+          case "cs":
+  data = await extractCallistanise(id);
+  break;
         case "dm":
           data = await extractDaily(id);
           break;
@@ -39,7 +42,7 @@ app.get("/sources", async (c) => {
           data = await extractFlash(id);
           break;
         case "vk":
-          const iframe = `https://vkprime.com/embed-${id}-600x360.html`;
+          const iframe = `https://vkspeed.com/embed-${id}.html`;
           data = await extractVk(iframe);
           break;
         default:
